@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:shake/shake.dart';
+import 'package:velocity_x/velocity_x.dart';
+
+import 'red_box.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -46,8 +49,37 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              '흔들어서 카운트를 올려보세요.',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const RedBox(),
+                Column(
+                  children: <Widget>[
+                    const RedBox()
+                        .box
+                        .padding(EdgeInsets.all(30))
+                        .color(Colors.blue)
+                        .make(),
+                    '흔들어서 카운트를 올려보세요.'
+                        .text
+                        .color(Colors.red)
+                        .bold
+                        .white
+                        .black
+                        .size(20)
+                        .isIntrinsic
+                        .makeCentered()
+                        .box
+                        .withRounded(value: 50)
+                        .color(Colors.green)
+                        .height(150)
+                        .make()
+                        .pSymmetric(h: 20, v: 50),
+                    const RedBox(),
+                  ],
+                ),
+                const RedBox(),
+              ],
             ),
             Text(
               '$_counter',
