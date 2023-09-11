@@ -12,11 +12,28 @@ final bankAccountKakao =
     BankAccount(bankKakao, 7000000, accountTypeName: "입출금통장");
 
 main() {
-  print(bankAccounts[0].accountTypeName);
+  final shinhanBank = bankMap["shinhan1"];
+  print(shinhanBank == bankAccountShinhan1);
+
+  for (final entry in bankMap.entries) {
+    print(entry.key +
+        ":" +
+        (entry.value.accountTypeName ?? entry.value.bank.name));
+  }
+
+  bankSet.contains(bankAccountShinhan1);
+
+  print(bankAccounts.contains(bankAccountShinhan1));
 }
 
-// List
+//List
 final bankAccounts = [
+  bankAccountShinhan1,
+  bankAccountShinhan1,
+  bankAccountShinhan1,
+  bankAccountShinhan1,
+  bankAccountShinhan1,
+  bankAccountShinhan1,
   bankAccountShinhan1,
   bankAccountShinhan2,
   bankAccountShinhan3,
@@ -24,8 +41,20 @@ final bankAccounts = [
   bankAccountKakao
 ];
 
+//Map
+final bankMap = {
+  "shinhan1": bankAccountShinhan1,
+  "shinhan2": bankAccountShinhan2,
+};
 
-// Map
-
-
-// Set
+//Set
+final bankSet = {
+  bankAccountShinhan1,
+  bankAccountShinhan2,
+  bankAccountShinhan2,
+  bankAccountShinhan2,
+  bankAccountShinhan2,
+  bankAccountShinhan3,
+  bankAccountToss,
+  bankAccountKakao
+};
