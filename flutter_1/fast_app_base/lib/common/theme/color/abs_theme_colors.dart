@@ -8,7 +8,6 @@ typedef ColorProvider = Color Function();
 abstract class AbstractThemeColors {
   const AbstractThemeColors();
 
-
   Color get veryBrightGrey => AppColors.brightGrey;
 
   Color get drawerBg => const Color.fromARGB(255, 255, 255, 255);
@@ -53,5 +52,7 @@ abstract class AbstractThemeColors {
 
   Color get unreadColor => const Color.fromARGB(255, 48, 48, 48);
 
-  Color get lessImportantText => AppColors.grey;
+  Color get lessImportant => AppColors.grey;
+
+  Color get blueText => AppColors.blue;
 }
