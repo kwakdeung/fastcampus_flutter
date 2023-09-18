@@ -11,6 +11,6 @@ class TodaysDiscoveryFragment extends StatelessWidget {
     );
   }
 
-  Widget get myAccount => Placeholder();
-  Widget get myStocks => Placeholder();
+  Widget get myAccount => const Placeholder();
+  Widget get myStocks => const Placeholder();
 }

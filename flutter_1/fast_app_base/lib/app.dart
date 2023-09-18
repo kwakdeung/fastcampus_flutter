@@ -4,8 +4,6 @@ import 'package:fast_app_base/screen/main/s_main.dart';
 
 import 'package:flutter/material.dart';
 
-import 'common/theme/custom_theme.dart';
-
 class App extends StatefulWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
@@ -65,7 +63,6 @@ class AppState extends State<App> with Nav, WidgetsBindingObserver {
       case AppLifecycleState.detached:
         break;
       case AppLifecycleState.hidden:
-      // TODO: Handle this case.
     }
     super.didChangeAppLifecycleState(state);
   }
