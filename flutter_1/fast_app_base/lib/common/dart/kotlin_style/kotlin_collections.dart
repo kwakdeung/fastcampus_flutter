@@ -13,10 +13,13 @@ class IndexedValue<T> {
 extension $KotlinCollection<E> on Iterable<E> {
   int get lastIndex => length - 1;
 
-  Iterable<IndexedValue<E>> withIndex() =>
-      toList().asMap().entries.map((entry) => IndexedValue(entry.key, entry.value));
+  Iterable<IndexedValue<E>> withIndex() => toList()
+      .asMap()
+      .entries
+      .map((entry) => IndexedValue(entry.key, entry.value));
 
-  Iterable<E> whereNot(bool Function(E element) test) => where((element) => !test(element));
+  Iterable<E> whereNot(bool Function(E element) test) =>
+      where((element) => !test(element));
 
   Iterable<T> mapIsLast<T>(T Function(E e, bool isLast) f) {
     var i = -1;

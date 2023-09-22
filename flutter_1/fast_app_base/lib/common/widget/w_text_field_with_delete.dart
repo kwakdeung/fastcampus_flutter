@@ -129,10 +129,13 @@ class TextFieldWithDeleteState extends State<TextFieldWithDelete> {
               textInputAction: widget.textInputAction,
               inputFormatters: widget.inputFormatters,
               onEditingComplete: widget.onEditingComplete,
-              style: TextStyle(fontSize: widget.fontSize, fontWeight: widget.fontWeight),
+              style: TextStyle(
+                  fontSize: widget.fontSize, fontWeight: widget.fontWeight),
               decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.only(left: widget.leftImage == null ? 0 : 30, top: 10, bottom: 14),
+                contentPadding: EdgeInsets.only(
+                    left: widget.leftImage == null ? 0 : 30,
+                    top: 10,
+                    bottom: 14),
                 hintText: widget.texthint,
                 hintStyle: TextStyle(
                     fontSize: widget.fontSize,
@@ -141,8 +144,8 @@ class TextFieldWithDeleteState extends State<TextFieldWithDelete> {
                 enabledBorder: const UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.transparent),
                 ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: context.appColors.focusedBorder, width: 8),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent),
                 ),
               ),
             ),
@@ -159,11 +162,13 @@ class TextFieldWithDeleteState extends State<TextFieldWithDelete> {
                                 widget.onTapDelete?.invoke();
                               },
                               child: Padding(
-                                padding: EdgeInsets.only(right: widget.deleteRightPadding),
+                                padding: EdgeInsets.only(
+                                    right: widget.deleteRightPadding),
                                 child: SvgPicture.asset(
                                   '$basePath/icon/delete_x.svg',
                                   colorFilter: ui.ColorFilter.mode(
-                                      context.appColors.iconButton, ui.BlendMode.srcIn),
+                                      context.appColors.iconButton,
+                                      ui.BlendMode.srcIn),
                                 ),
                               ),
                             ),

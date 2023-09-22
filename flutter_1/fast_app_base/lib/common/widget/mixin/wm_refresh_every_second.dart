@@ -15,7 +15,8 @@ mixin RefreshEverySecond<T extends StatefulWidget> on State<T> {
     this.refreshMilliSecond = refreshMilliSecond;
     isRefreshStarted = true;
     _cancelTimer();
-    _everySecond = Timer.periodic(Duration(milliseconds: refreshMilliSecond), (Timer t) {
+    _everySecond =
+        Timer.periodic(Duration(milliseconds: refreshMilliSecond), (Timer t) {
       if (!mounted) {
         return;
       }

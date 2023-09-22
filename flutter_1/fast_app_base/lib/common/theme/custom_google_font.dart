@@ -11,7 +11,8 @@ import 'package:google_fonts/src/google_fonts_variant.dart';
 class CustomGoogleFont extends GoogleFontsFile {
   final String downloadUrl;
 
-  CustomGoogleFont(this.downloadUrl, super.expectedFileHash, super.expectedLength);
+  CustomGoogleFont(
+      this.downloadUrl, super.expectedFileHash, super.expectedLength);
 
   @override
   String get url => downloadUrl;

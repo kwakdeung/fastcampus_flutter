@@ -30,11 +30,11 @@ class RxPreferenceItem<T, R extends Rx<T>> extends PreferenceItem<T> {
 
   @override
   T get() {
-    if(!_isLoaded){
+    if (!_isLoaded) {
       _load();
     }
-    final value =  AppPreferences.getValue<T>(this);
-    if(_rxValue.value!=value){
+    final value = AppPreferences.getValue<T>(this);
+    if (_rxValue.value != value) {
       _rxValue.value = value;
     }
     return _rxValue.value;

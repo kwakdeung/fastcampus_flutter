@@ -1,6 +1,7 @@
 import 'dart:async';
 
-Timer delayTimer(Function func, [Duration duration = const Duration(milliseconds: 50)]) {
+Timer delayTimer(Function func,
+    [Duration duration = const Duration(milliseconds: 50)]) {
   return Timer(duration, () {
     func();
   });

@@ -86,7 +86,8 @@ class RoundButtonState extends State<RoundButton> with RefreshEverySecond {
   @override
   Widget build(BuildContext context) {
     Color color = widget.isEnabled ? (widget.bgColor) : disabledBgColor;
-    Color currentTextColor = widget.isEnabled ? widget.textColor : disabledTextColor;
+    Color currentTextColor =
+        widget.isEnabled ? widget.textColor : disabledTextColor;
     Color borderColor = widget.borderColor;
     Color shadowColor = widget.shadowColor;
     var finalWidth = widget.wrapContent ? null : widget.width;
@@ -147,14 +148,18 @@ class RoundButtonState extends State<RoundButton> with RefreshEverySecond {
               shape: BoxShape.rectangle,
               boxShadow: [
                 BoxShadow(
-                    color: shadowColor, offset: const Offset(0, 3), blurRadius: 6, spreadRadius: 0)
+                    color: shadowColor,
+                    offset: const Offset(0, 3),
+                    blurRadius: 6,
+                    spreadRadius: 0)
               ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (widget.leftWidget != null && !widget.leftWidgetOnStack) widget.leftWidget!,
+                if (widget.leftWidget != null && !widget.leftWidgetOnStack)
+                  widget.leftWidget!,
                 Text(
                   widget.text,
                   textAlign: widget.textAlign,

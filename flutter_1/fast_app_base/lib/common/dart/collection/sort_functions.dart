@@ -9,7 +9,8 @@ SortF number = (String sortField) => (dynamic a, dynamic b) {
       return a[sortField].compareTo(b[sortField]);
     };
 
-int Function(T, T) byStringField<T>(String Function(T func) fieldProvider) => (T a, T b) {
+int Function(T, T) byStringField<T>(String Function(T func) fieldProvider) =>
+    (T a, T b) {
       final fieldA = fieldProvider(a);
       final fieldB = fieldProvider(b);
 
@@ -36,7 +37,8 @@ int Function(A, B) byDateFieldWithDiffTypes<A, B>(
       return reverse ? fieldA.compareTo(fieldB) : fieldB.compareTo(fieldA);
     };
 
-int Function(T, T) byIntField<T>(int Function(T func) fieldProvider, {bool reverse = false}) =>
+int Function(T, T) byIntField<T>(int Function(T func) fieldProvider,
+        {bool reverse = false}) =>
     (T a, T b) {
       final fieldA = fieldProvider(a);
       final fieldB = fieldProvider(b);
@@ -51,7 +53,8 @@ int Function(T, T) byDoubleField<T>(double Function(T func) fieldProvider,
       return reverse ? fieldA.compareTo(fieldB) : fieldB.compareTo(fieldA);
     };
 
-int Function(T, T) byBoolField<T>(bool Function(T func) fieldProvider, {bool reverse = false}) =>
+int Function(T, T) byBoolField<T>(bool Function(T func) fieldProvider,
+        {bool reverse = false}) =>
     (T a, T b) {
       final fieldA = fieldProvider(a);
       final fieldB = fieldProvider(b);

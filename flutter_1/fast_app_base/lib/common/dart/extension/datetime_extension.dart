@@ -1,5 +1,3 @@
-
-
 import 'package:easy_localization/easy_localization.dart';
 
 extension DateTimeExtension on DateTime {

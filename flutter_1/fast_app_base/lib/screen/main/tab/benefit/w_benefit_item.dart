@@ -22,7 +22,10 @@ class BenefitItem extends StatelessWidget {
           children: [
             benefit.subTitle.text.size(13).make(),
             height5,
-            benefit.title.text.color(context.appColors.blueText).size(13).make(),
+            benefit.title.text
+                .color(context.appColors.blueText)
+                .size(13)
+                .make(),
           ],
         )
       ],
