@@ -1,6 +1,5 @@
 import 'package:fast_app_base/common/common.dart';
 import 'package:fast_app_base/common/widget/w_arrow.dart';
-import 'package:fast_app_base/common/widget/w_tap.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedAppBar extends StatefulWidget {
@@ -63,6 +62,35 @@ class _AnimatedAppBarState extends State<AnimatedAppBar> {
                   fontWeight: FontWeight.bold,
                 ),
                 child: widget.title.text.make(),
+              ),
+            ),
+            Tap(
+                onTap: () {
+                  Nav.pop(context);
+                },
+                child: const Arrow(
+                  direction: AxisDirection.left,
+                )).p(20),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: TweenAnimationBuilder<Color?>(
+                  tween: ColorTween(
+                      begin: Colors.green,
+                      end: isTriggered ? Colors.orange : Colors.green),
+                  duration: 1000.ms,
+                  builder: ((context, value, child) => ColorFiltered(
+                        colorFilter: ColorFilter.mode(
+                          value ?? Colors.green,
+                          BlendMode.modulate,
+                        ),
+                        child: child,
+                      )),
+                  child: Image.asset(
+                    "$basePath/icon/map_point.png",
+                    height: 60,
+                  ),
+                ),
               ),
             ),
           ],
