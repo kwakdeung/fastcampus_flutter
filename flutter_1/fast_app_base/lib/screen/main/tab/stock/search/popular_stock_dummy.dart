@@ -1,6 +1,6 @@
 import 'package:fast_app_base/screen/main/tab/stock/vo_popular_stock.dart';
 
-List<PopularStock> popularStockList = [
+List<PopularStock> popularStocks = [
   PopularStock(
       stockName: '한화솔루션', yesterdayClosePrice: 41600, currentPrice: 41600),
   PopularStock(

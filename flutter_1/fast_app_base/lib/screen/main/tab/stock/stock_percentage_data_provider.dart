@@ -27,4 +27,13 @@ abstract mixin class StockPercentageDataProvider {
       : isPlus
           ? context.appColors.plus
           : context.appColors.minus;
+  Color getTodayPercentageColor(BuildContext context) {
+    if (isSame) {
+      return context.appColors.dimmedText;
+    } else if (isPlus) {
+      return context.appColors.plus;
+    } else {
+      return context.appColors.minus;
+    }
+  }
 }
