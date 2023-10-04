@@ -1,6 +1,7 @@
 import 'package:fast_app_base/common/common.dart';
 import 'package:fast_app_base/common/widget/w_rounded_container.dart';
 import 'package:fast_app_base/screen/dialog/d_message.dart';
+import 'package:fast_app_base/screen/main/tab/home/s_number.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_bank_account.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_rive_like_button.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_ttoss_app_bar.dart';
@@ -61,8 +62,11 @@ class _HomeFragmentState extends State<HomeFragment> {
                         )),
                     BigButton(
                       text: "토스뱅크",
-                      onTap: () {
-                        context.showSnackbar("토스뱅크를 눌렀어요.");
+                      onTap: () async {
+                        print('start');
+                        final result = await Nav.push(NumberScreen());
+                        print(result);
+                        print('end');
                       },
                     ),
                     height10,
