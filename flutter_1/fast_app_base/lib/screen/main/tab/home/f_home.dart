@@ -5,6 +5,7 @@ import 'package:fast_app_base/screen/main/tab/home/s_number.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_bank_account.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_rive_like_button.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_ttoss_app_bar.dart';
+import 'package:fast_app_base/screen/stream_test.dart';
 import 'package:flutter/material.dart';
 import 'package:live_background/object/palette.dart';
 import 'package:live_background/widget/live_background_widget.dart';
@@ -26,6 +27,18 @@ class HomeFragment extends StatefulWidget {
 
 class _HomeFragmentState extends State<HomeFragment> {
   bool isLike = false;
+  // int count = 0;
+  late final stream = countStream(5).asBroadcastStream();
+
+  @override
+  void initState() {
+    // countStream(5).listen((event) {
+    //   setState(() {
+    //     count = event;
+    //   });
+    // });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +46,6 @@ class _HomeFragmentState extends State<HomeFragment> {
       color: Colors.black,
       child: Stack(
         children: [
-          const LiveBackgroundWidget(
-            palette: Palette(colors: [Colors.red, Colors.green]),
-            velocityX: 1,
-            particleMaxSize: 20,
-          ),
           RefreshIndicator(
             edgeOffset: TtossAppBar.appBarHeight,
             onRefresh: () async {
@@ -49,17 +57,25 @@ class _HomeFragmentState extends State<HomeFragment> {
                     bottom: MainScreenState.bottomNavigatorHeight),
                 child: Column(
                   children: [
-                    SizedBox(
-                        height: 250,
-                        width: 250,
-                        child: RiveLikeButton(
-                          isLike,
-                          onTapLike: (bool isLike) {
-                            setState(() {
-                              this.isLike = isLike;
-                            });
-                          },
-                        )),
+                    StreamBuilder(
+                      stream: stream,
+                      builder: (context, snapshot) {
+                        final count = snapshot.data;
+
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.active:
+                            if (count == null) {
+                              return CircularProgressIndicator();
+                            }
+                            return count.text.size(30).bold.make();
+                          case ConnectionState.waiting:
+                          case ConnectionState.none:
+                            return const CircularProgressIndicator();
+                          case ConnectionState.done:
+                            return '완료'.text.size(30).bold.make();
+                        }
+                      },
+                    ),
                     BigButton(
                       text: "토스뱅크",
                       onTap: () async {
