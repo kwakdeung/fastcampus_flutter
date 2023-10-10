@@ -5,7 +5,7 @@ import 'package:fast_app_base/screen/main/tab/home/s_number.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_bank_account.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_rive_like_button.dart';
 import 'package:fast_app_base/screen/main/tab/home/w_ttoss_app_bar.dart';
-import 'package:fast_app_base/screen/stream_test.dart';
+import '../../../../class/ch04_advanced_dart1/stream_test.dart';
 import 'package:flutter/material.dart';
 import 'package:live_background/object/palette.dart';
 import 'package:live_background/widget/live_background_widget.dart';
