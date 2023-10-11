@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:isolate';
+
 import 'package:fast_app_base/common/common.dart';
 import 'package:fast_app_base/common/widget/w_rounded_container.dart';
 import 'package:fast_app_base/screen/dialog/d_message.dart';
@@ -57,25 +60,41 @@ class _HomeFragmentState extends State<HomeFragment> {
                     bottom: MainScreenState.bottomNavigatorHeight),
                 child: Column(
                   children: [
-                    StreamBuilder(
-                      stream: stream,
-                      builder: (context, snapshot) {
-                        final count = snapshot.data;
-
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.active:
-                            if (count == null) {
-                              return CircularProgressIndicator();
-                            }
-                            return count.text.size(30).bold.make();
-                          case ConnectionState.waiting:
-                          case ConnectionState.none:
-                            return const CircularProgressIndicator();
-                          case ConnectionState.done:
-                            return '완료'.text.size(30).bold.make();
-                        }
-                      },
+                    SizedBox(
+                      width: 250,
+                      height: 250,
+                      child: RiveLikeButton(
+                        isLike,
+                        onTapLike: (bool isLike) async {
+                          setState(() {
+                            this.isLike = isLike;
+                          });
+                          delay(() {
+                            // veryHeavyComputationWork();
+                            veryHeavyComputationWorkWithIsolateSpawn();
+                          }, 250.ms);
+                        },
+                      ),
                     ),
+                    // StreamBuilder(
+                    //   stream: stream,
+                    //   builder: (context, snapshot) {
+                    //     final count = snapshot.data;
+
+                    //     switch (snapshot.connectionState) {
+                    //       case ConnectionState.active:
+                    //         if (count == null) {
+                    //           return CircularProgressIndicator();
+                    //         }
+                    //         return count.text.size(30).bold.make();
+                    //       case ConnectionState.waiting:
+                    //       case ConnectionState.none:
+                    //         return const CircularProgressIndicator();
+                    //       case ConnectionState.done:
+                    //         return '완료'.text.size(30).bold.make();
+                    //     }
+                    //   },
+                    // ),
                     BigButton(
                       text: "토스뱅크",
                       onTap: () async {
@@ -156,5 +175,108 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   void openDrawer(BuildContext context) {
     Scaffold.of(context).openDrawer();
+  }
+
+  Future<void> veryHeavyComputationWork() async {
+    int count = 0;
+    debugPrint('count start');
+    final startTime = DateTime.now();
+    for (int i = 0; i < 1500000000; i++) {
+      count++;
+      if (count % 1500000000 == 0) {
+        debugPrint('progress: ${count.toString()}');
+        debugPrint(
+            '${DateTime.now().difference(startTime).inMilliseconds / 1000} sec');
+      }
+    }
+    debugPrint('result: ${count.toString()}');
+    debugPrint('done');
+    debugPrint(
+        '${DateTime.now().difference(startTime).inMilliseconds / 1000} sec');
+  }
+
+  void veryHeavyComputationWorkWithIsolateSpawn() async {
+    final errorPort = ReceivePort();
+    errorPort.listen((element) {
+      debugPrint('Isolate Error!');
+      debugPrint(element);
+    });
+
+    final exitPort = ReceivePort();
+    exitPort.listen((message) {
+      debugPrint('Exit - Done');
+    });
+
+    final progressListenPort = ReceivePort();
+    progressListenPort.listen((message) {
+      debugPrint('received from isolate!');
+      debugPrint(message.toString());
+    });
+    final isolate = await Isolate.spawn(
+      (wrappedMessage) {
+        final data = wrappedMessage["data"];
+        final color = wrappedMessage["color"];
+        final sendPort = wrappedMessage["port"] as SendPort;
+        print(data);
+        print(color);
+        int count = 0;
+        debugPrint('Isolate Count Start');
+        final startTime = DateTime.now();
+        for (int i = 0; i <= 1500000000; i++) {
+          count += 1;
+          // if (i % 100000 == 0) {
+          //   debugPrint(
+          //       "${DateTime.now().difference(startTime).inMilliseconds / 1000}sec");
+          //   throw Exception('error');
+          // }
+
+          if (i % 150000000 == 0) {
+            sendPort.send(count);
+            debugPrint(
+                "${DateTime.now().difference(startTime).inMilliseconds / 1000}sec");
+          }
+        }
+
+        debugPrint(count.toString());
+        debugPrint(
+            "${DateTime.now().difference(startTime).inMilliseconds / 1000}sec");
+      },
+      {
+        "data": "filePath.mp4",
+        "color": Colors.green,
+        "port": progressListenPort.sendPort,
+      },
+      onError: errorPort.sendPort,
+      onExit: exitPort.sendPort,
+    );
+    debugPrint('spawn done');
+    delay(() {
+      debugPrint('force kill');
+      isolate.kill(priority: Isolate.immediate);
+
+      // debugPrint('force exit isolate');
+      // Isolate.exit(isolate.controlPort);
+    }, 1000.ms);
+  }
+
+  /// Flutter 3.7 이상
+  void veryHeavyComputationWorkWithIsolateRun() async {
+    const message = '{"message": "Flutter is good"}';
+    final isolateResult = await Isolate.run<String>(() {
+      final jsonObject = json.decode(message);
+      debugPrint(jsonObject["message"]);
+      int count = 0;
+      debugPrint('Isolate Count Start');
+      final startTime = DateTime.now();
+      for (int i = 0; i <= 900000000; i++) {
+        count += 7;
+      }
+
+      debugPrint(count.toString());
+      debugPrint(
+          "${DateTime.now().difference(startTime).inMilliseconds / 1000}sec");
+      return "Run Isolate Done";
+    });
+    debugPrint(isolateResult);
   }
 }
