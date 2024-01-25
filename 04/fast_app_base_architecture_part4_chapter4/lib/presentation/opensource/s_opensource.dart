@@ -1,7 +1,7 @@
 import 'package:fast_app_base_architecture/common/common.dart';
 import 'package:fast_app_base_architecture/common/util/local_json.dart';
-import 'package:fast_app_base_architecture/screen/opensource/rive_resources.dart';
-import 'package:fast_app_base_architecture/screen/opensource/vo_package.dart';
+import 'package:fast_app_base_architecture/presentation/opensource/rive_resources.dart';
+import 'package:fast_app_base_architecture/presentation/opensource/vo_package.dart';
 import 'package:flutter/material.dart';
 
 import 'w_opensource_item.dart';

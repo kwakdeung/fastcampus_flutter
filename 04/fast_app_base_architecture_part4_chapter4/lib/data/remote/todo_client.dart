@@ -20,7 +20,6 @@ abstract class TodoClient {
             ? 'http://10.0.2.2:8080/'
             : 'http://localhost:8080/');
   }
-
   @GET('/todo')
   Future<List<Todo>> getTodoList();
 

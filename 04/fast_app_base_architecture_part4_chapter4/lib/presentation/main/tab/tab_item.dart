@@ -1,6 +1,6 @@
 import 'package:fast_app_base_architecture/common/common.dart';
-import 'package:fast_app_base_architecture/screen/main/tab/search/f_search.dart';
-import 'package:fast_app_base_architecture/screen/main/tab/todo/f_todo.dart';
+import 'package:fast_app_base_architecture/presentation/main/tab/search/f_search.dart';
+import 'package:fast_app_base_architecture/presentation/main/tab/todo/f_todo.dart';
 import 'package:flutter/material.dart';
 
 enum TabItem {

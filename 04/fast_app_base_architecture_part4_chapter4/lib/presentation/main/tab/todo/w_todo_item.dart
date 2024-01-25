@@ -2,7 +2,7 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:fast_app_base_architecture/common/common.dart';
 import 'package:fast_app_base_architecture/common/dart/extension/datetime_extension.dart';
 import 'package:fast_app_base_architecture/data/memory/todo_data.dart';
-import 'package:fast_app_base_architecture/screen/main/tab/todo/w_todo_status.dart';
+import 'package:fast_app_base_architecture/presentation/main/tab/todo/w_todo_status.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../common/widget/w_rounded_container.dart';

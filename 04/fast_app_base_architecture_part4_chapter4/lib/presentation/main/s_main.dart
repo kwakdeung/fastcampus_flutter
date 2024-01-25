@@ -1,7 +1,7 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:fast_app_base_architecture/data/memory/todo_data.dart';
-import 'package:fast_app_base_architecture/screen/main/tab/tab_item.dart';
-import 'package:fast_app_base_architecture/screen/main/tab/tab_navigator.dart';
+import 'package:fast_app_base_architecture/presentation/main/tab/tab_item.dart';
+import 'package:fast_app_base_architecture/presentation/main/tab/tab_navigator.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/common.dart';

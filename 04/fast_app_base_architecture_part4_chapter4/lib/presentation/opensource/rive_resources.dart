@@ -1,4 +1,4 @@
-import 'package:fast_app_base_architecture/screen/opensource/vo_package.dart';
+import 'package:fast_app_base_architecture/presentation/opensource/vo_package.dart';
 
 import 'create_common_4.dart';
 
