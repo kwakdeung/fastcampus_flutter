@@ -20,7 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.logout)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+          if (_menuIndex == 0)
+            IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         ],
       ),
       body: IndexedStack(
