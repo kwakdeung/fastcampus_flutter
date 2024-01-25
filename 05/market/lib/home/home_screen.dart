@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:market/home/widgets/home_widget.dart';
+import 'package:market/home/widgets/seller_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _menuIndex,
         children: [
           HomeWidget(),
-          Container(color: Colors.indigo),
+          SellerWidget(),
         ],
       ),
       floatingActionButton: switch (_menuIndex) {
