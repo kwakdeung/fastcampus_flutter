@@ -67,7 +67,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '609681700745',
     projectId: 'market-4fabd',
     storageBucket: 'market-4fabd.appspot.com',
-    iosClientId: '609681700745-0s303jr3g50qvnnkoutt3v3btvsvueg7.apps.googleusercontent.com',
+    iosClientId:
+        '609681700745-0s303jr3g50qvnnkoutt3v3btvsvueg7.apps.googleusercontent.com',
     iosBundleId: 'com.example.market',
   );
 
@@ -77,7 +78,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '609681700745',
     projectId: 'market-4fabd',
     storageBucket: 'market-4fabd.appspot.com',
-    iosClientId: '609681700745-l93lbno0hagmitncjm4ehdmstjp86jkm.apps.googleusercontent.com',
+    iosClientId:
+        '609681700745-l93lbno0hagmitncjm4ehdmstjp86jkm.apps.googleusercontent.com',
     iosBundleId: 'com.example.market.RunnerTests',
   );
 }
