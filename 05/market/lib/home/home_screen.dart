@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:market/home/cart_screen.dart';
+import 'package:market/home/product_add_screen.dart';
 import 'package:market/home/widgets/home_widget.dart';
 import 'package:market/home/widgets/seller_widget.dart';
 
@@ -45,7 +46,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(Icons.shopping_cart_outlined),
           ),
         1 => FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ProdcutAddScreen(),
+                ),
+              );
+            },
             child: Icon(Icons.add),
           ),
         _ => Container(),
