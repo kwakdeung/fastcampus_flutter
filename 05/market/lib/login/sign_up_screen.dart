@@ -25,7 +25,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: Column(
             children: [
               Text(
-                "패킴 마트\n가입을 환영합니다.",
+                "마트\n가입을 환영합니다.",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
