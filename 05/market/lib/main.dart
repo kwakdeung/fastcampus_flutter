@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,11 +13,14 @@ import 'package:market/home/product_detail_screen.dart';
 import 'package:market/login/login_screen.dart';
 import 'package:market/login/sign_up_screen.dart';
 
+List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  cameras = await availableCameras();
 
   if (kDebugMode) {
     try {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:market/home/camera_example_page.dart';
 import 'package:market/model/category.dart';
 
 class ProdcutAddScreen extends StatefulWidget {
@@ -36,6 +37,17 @@ class _ProdcutAddScreenState extends State<ProdcutAddScreen> {
       appBar: AppBar(
         title: Text("상품 추가"),
         actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return CameraExamplePage();
+                    },
+                  ),
+                );
+              },
+              icon: Icon(Icons.camera)),
           IconButton(onPressed: () {}, icon: Icon(Icons.batch_prediction)),
           IconButton(onPressed: () {}, icon: Icon(Icons.add)),
         ],
