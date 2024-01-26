@@ -20,7 +20,8 @@ void main() async {
 
   if (kDebugMode) {
     try {
-      // await FirebaseAuth.instance.useAuthEmulator("localhost", 9099); // 구글 로그인 사용하려면 잠시 Emulator 비활성화 해야 함.
+      await FirebaseAuth.instance.useAuthEmulator(
+          "localhost", 9099); // 구글 로그인 사용하려면 잠시 Emulator 비활성화 해야 함.
       FirebaseFirestore.instance.useFirestoreEmulator("localhost", 8080);
       FirebaseStorage.instance.useStorageEmulator("localhost", 9199);
     } catch (e) {
