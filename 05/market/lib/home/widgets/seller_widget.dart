@@ -1,10 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:market/model/product.dart';
 
 Future addCategories(String title) async {
   final db = FirebaseFirestore.instance;
   final ref = db.collection("category");
   await ref.add({"title": title});
+}
+
+Future<List<Product>> fetchProducts() async {
+  final db = FirebaseFirestore.instance;
+  final resp = await db.collection("products").orderBy("timestamp").get();
+  List<Product> items = [];
+  for (var doc in resp.docs) {
+    final item = Product.fromJson(doc.data());
+    final realItem = item.copyWith(docId: doc.id);
+    items.add(item);
+  }
+  return items;
+}
+
+Stream<QuerySnapshot> streamProducts(String query) {
+  final db = FirebaseFirestore.instance;
+  if (query.isNotEmpty) {
+    return db
+        .collection("products")
+        .orderBy("title")
+        .startAt([query]).endAt([query + "\uf8ff"]).snapshots();
+  }
+  return db.collection("products").orderBy("timestamp").snapshots();
 }
 
 class SellerWidget extends StatefulWidget {
@@ -15,6 +39,8 @@ class SellerWidget extends StatefulWidget {
 }
 
 class _SellerWidgetState extends State<SellerWidget> {
+  TextEditingController textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -23,7 +49,15 @@ class _SellerWidgetState extends State<SellerWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SearchBar(),
+          SearchBar(
+            controller: textEditingController,
+            leading: Icon(Icons.search),
+            onChanged: (s) {
+              setState(() {});
+            },
+            hintText: "상품명 입력",
+            onTap: () {},
+          ),
           SizedBox(height: 16),
           ButtonBar(
             children: [
@@ -87,56 +121,100 @@ class _SellerWidgetState extends State<SellerWidget> {
               ),
             ),
           ),
-          Expanded(child: ListView.builder(
-            itemBuilder: (context, index) {
-              return Container(
-                height: 120,
-                margin: EdgeInsets.only(bottom: 16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(8),
-                        // image: DecorationImage(),
-                      ),
-                    ),
-                    Expanded(
-                        child: Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Expanded(
+            child: StreamBuilder(
+              stream: streamProducts(textEditingController.text),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final items = snapshot.data?.docs
+                      .map(
+                        (e) =>
+                            Product.fromJson(e.data() as Map<String, dynamic>)
+                                .copyWith(
+                          docId: e.id,
+                        ),
+                      )
+                      .toList();
+                  return ListView.builder(
+                    itemCount: items?.length,
+                    itemBuilder: (context, index) {
+                      final item = items?[index];
+                      return GestureDetector(
+                        onTap: () {
+                          print(item?.docId);
+                        },
+                        child: Container(
+                          height: 120,
+                          margin: EdgeInsets.only(bottom: 16),
+                          child: Row(
                             children: [
-                              Text(
-                                "제품 명",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                              Container(
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                    image: NetworkImage(item?.imgUrl ??
+                                        "https://cdn.pixabay.com/photo/2023/04/23/16/08/flower-7946074_1280.jpg"),
+                                  ),
                                 ),
                               ),
-                              PopupMenuButton(
-                                itemBuilder: (context) => [
-                                  PopupMenuItem(child: Text("리뷰")),
-                                  PopupMenuItem(child: Text("삭제")),
-                                ],
-                              ),
+                              Expanded(
+                                  child: Padding(
+                                padding: const EdgeInsets.only(left: 16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          item?.title ?? "제품 명 ?? ",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        PopupMenuButton(
+                                          itemBuilder: (context) => [
+                                            PopupMenuItem(child: Text("리뷰")),
+                                            PopupMenuItem(
+                                                onTap: () async {
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection("products")
+                                                      .doc(item?.docId)
+                                                      .delete();
+                                                },
+                                                child: Text("삭제")),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    Text("${item?.price} 원"),
+                                    Text(switch (item?.isSale) {
+                                      true => "할인 중",
+                                      false => "할인 없음",
+                                      _ => "??"
+                                    }),
+                                    Text("재고수량: ${item?.stock} 개"),
+                                  ],
+                                ),
+                              )),
                             ],
                           ),
-                          Text("1000000원"),
-                          Text("할인 중"),
-                          Text("재고수량"),
-                        ],
-                      ),
-                    )),
-                  ],
-                ),
-              );
-            },
-          )),
+                        ),
+                      );
+                    },
+                  );
+                }
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

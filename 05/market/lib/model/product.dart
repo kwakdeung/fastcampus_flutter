@@ -10,6 +10,7 @@ sealed class Product with _$Product {
     String? title,
     String? description,
     int? price,
+    bool? isSale,
     int? stock,
     double? saleRate,
     String? imgUrl,
