@@ -20,13 +20,18 @@ class _LoginScreenState extends State<LoginScreen> {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       print(credential);
+      // userCredential = credential;
       return credential;
     } on FirebaseAuthException catch (e) {
       if (e.code == "user-not-found") {
-      } else if (e.code == "user-not-found") {
+        // logic
+        print(e.toString());
+      } else if (e.code == "wrong-password") {
+        // logic
         print(e.toString());
       }
     } catch (e) {
+      // logic
       print(e.toString());
     }
   }
@@ -111,14 +116,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     final result = await signIn(emailTextController.text.trim(),
                         pwdTextController.text.trim());
+
                     if (result == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("로그인 실패"),
-                        ),
-                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("로그인 실패"),
+                          ),
+                        );
+                      }
                       return;
                     }
+
                     // 로그인 및 검증 성공
                     if (context.mounted) {
                       context.go("/");
