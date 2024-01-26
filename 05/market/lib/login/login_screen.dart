@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,6 +13,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailTextController = TextEditingController();
   TextEditingController pwdTextController = TextEditingController();
+
+  Future<UserCredential?> signIn(String email, String password) async {
+    try {
+      final credential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      print(credential);
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "user-not-found") {
+      } else if (e.code == "user-not-found") {
+        print(e.toString());
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +88,26 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: MaterialButton(
-                onPressed: () {},
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
+
+                    final result = await signIn(emailTextController.text.trim(),
+                        pwdTextController.text.trim());
+                    if (result == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("로그인 실패"),
+                        ),
+                      );
+                      return;
+                    }
+                    // 로그인 및 검증 성공
+                    if (context.mounted) {
+                      context.go("/");
+                    }
+                  }
+                },
                 height: 48,
                 minWidth: double.infinity,
                 color: Colors.red,
