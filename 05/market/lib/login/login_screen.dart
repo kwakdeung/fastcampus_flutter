@@ -41,6 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
       idToken: googleAuth?.idToken,
     );
 
+    print("accessToken: ${credential.accessToken}");
+    print("idToken: ${credential.idToken}");
+
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
@@ -141,7 +144,17 @@ class _LoginScreenState extends State<LoginScreen> {
             const Divider(),
             InkWell(
                 onTap: () async {
-                  final UserCredit = await signInWithGoogle();
+                  final userCredit = await signInWithGoogle();
+
+                  if (userCredit == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("구글 로그인 실패"),
+                    ));
+                    return;
+                  }
+                  if (context.mounted) {
+                    context.go("/");
+                  }
                 },
                 child: Image.asset("assets/btn_google_signin.png")),
           ],
