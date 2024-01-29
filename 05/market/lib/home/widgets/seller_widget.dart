@@ -41,6 +41,21 @@ class SellerWidget extends StatefulWidget {
 class _SellerWidgetState extends State<SellerWidget> {
   TextEditingController textEditingController = TextEditingController();
 
+  update(Product? item) async {
+    final db = FirebaseFirestore.instance;
+    final ref = db.collection("products");
+    ref.doc(item?.docId).update(
+          item!
+              .copyWith(
+                title: "milk 123",
+                price: 1000,
+                stock: 10,
+                isSale: false,
+              )
+              .toJson(),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -179,6 +194,9 @@ class _SellerWidgetState extends State<SellerWidget> {
                                         PopupMenuButton(
                                           itemBuilder: (context) => [
                                             PopupMenuItem(child: Text("리뷰")),
+                                            PopupMenuItem(
+                                                onTap: () => update(item),
+                                                child: Text("수정하기")),
                                             PopupMenuItem(
                                                 onTap: () async {
                                                   await FirebaseFirestore
