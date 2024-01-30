@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:market/home/product_detail_screen.dart';
+import 'package:market/model/category.dart';
+import 'package:market/model/product.dart';
 
 class HomeWidget extends StatefulWidget {
   const HomeWidget({super.key});
@@ -12,6 +15,26 @@ class HomeWidget extends StatefulWidget {
 class _HomeWidgetState extends State<HomeWidget> {
   PageController pageController = PageController();
   int bannerIndex = 0;
+
+  List<Category> categoryItems = [];
+
+  // 카테고리 목록 가져오기
+  Stream<QuerySnapshot<Map<String, dynamic>>> streamCategories() {
+    return FirebaseFirestore.instance.collection("category").snapshots();
+  }
+
+  Future<List<Product>> fetchSaleProducts() async {
+    final dbRef = FirebaseFirestore.instance.collection("products");
+    final saleItems =
+        await dbRef.where("isSale", isEqualTo: true).orderBy("saleRate").get();
+    List<Product> products = [];
+    for (var element in saleItems.docs) {
+      final item = Product.fromJson(element.data());
+      final copyItem = item.copyWith(docId: element.id);
+      products.add(copyItem);
+    }
+    return products;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +101,44 @@ class _HomeWidgetState extends State<HomeWidget> {
                 // TODO: 카테고리 목록을 받아오는 위젯 구현
                 Container(
                   height: 240,
-                  color: Colors.red,
+                  // color: Colors.red,
+                  child: StreamBuilder(
+                      stream: streamCategories(),
+                      builder: (BuildContext context, snapshot) {
+                        if (snapshot.hasData) {
+                          categoryItems.clear();
+                          final docs = snapshot.data;
+                          final docItems = docs?.docs ?? [];
+                          for (var doc in docItems) {
+                            categoryItems.add(Category(
+                                docId: doc.id, title: doc.data()["title"]));
+                          }
+                          return GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                              ),
+                              itemCount: categoryItems.length,
+                              itemBuilder: (context, index) {
+                                final item = categoryItems[index];
+                                return Column(
+                                  children: [
+                                    CircleAvatar(radius: 24),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      item.title ?? "카테고리?",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  ],
+                                );
+                              });
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }),
                 ),
               ],
             ),
@@ -104,28 +164,71 @@ class _HomeWidgetState extends State<HomeWidget> {
                 ),
                 Container(
                   height: 240,
-                  color: Colors.orange,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetailScreen(),
-                            ),
+                  child: FutureBuilder(
+                      future: fetchSaleProducts(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final items = snapshot.data ?? [];
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              if (snapshot.hasData) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ProductDetailScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          width: 160,
+                                          margin: EdgeInsets.only(right: 16),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                  item.imgUrl ?? ""),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        item.title ?? "",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${item.price} 원",
+                                        style: TextStyle(
+                                          decoration:
+                                              TextDecoration.lineThrough,
+                                        ),
+                                      ),
+                                      Text(
+                                          "${(item.price! * (item.saleRate! / 100)).toStringAsFixed(0)}원"),
+                                    ],
+                                  ),
+                                );
+                              }
+                            },
                           );
-                        },
-                        child: Container(
-                          width: 160,
-                          margin: EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                        }
+                        return Center(child: CircularProgressIndicator());
+                      }),
                 ),
               ],
             ),
