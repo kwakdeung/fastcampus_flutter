@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/firebase_options.dart';
 import 'package:market/home/cart_screen.dart';
@@ -35,7 +36,7 @@ void main() async {
       print(e);
     }
   }
-  runApp(MarketApp());
+  runApp(ProviderScope(child: MarketApp()));
 }
 
 class MarketApp extends StatelessWidget {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:market/home/cart_screen.dart';
 import 'package:market/home/product_add_screen.dart';
 import 'package:market/home/widgets/home_widget.dart';
 import 'package:market/home/widgets/seller_widget.dart';
+import 'package:market/login/provider/login_provider.dart';
 import 'package:market/main.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -36,36 +38,34 @@ class _HomeScreenState extends State<HomeScreen> {
           SellerWidget(),
         ],
       ),
-      floatingActionButton: switch (_menuIndex) {
-        0 => FloatingActionButton(
-            onPressed: () {
-              final uid = userCredential?.user?.uid;
-              if (uid == null) {
-                return;
-              }
-              context.go("/cart/$uid");
-              // Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //     builder: (context) => CartScreen(
-              //       uid: "",
-              //     ),
-              //   ),
-              // );
-            },
-            child: Icon(Icons.shopping_cart_outlined),
-          ),
-        1 => FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ProdcutAddScreen(),
-                ),
-              );
-            },
-            child: Icon(Icons.add),
-          ),
-        _ => Container(),
-      },
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final user = ref.watch(userCredentialProvider);
+          return switch (_menuIndex) {
+            0 => FloatingActionButton(
+                onPressed: () {
+                  final uid = user?.user?.uid;
+                  if (uid == null) {
+                    return;
+                  }
+                  context.go("/cart/$uid");
+                },
+                child: Icon(Icons.shopping_cart_outlined),
+              ),
+            1 => FloatingActionButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProdcutAddScreen(),
+                    ),
+                  );
+                },
+                child: Icon(Icons.add),
+              ),
+            _ => Container(),
+          };
+        },
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _menuIndex,
         onDestinationSelected: (idx) {
