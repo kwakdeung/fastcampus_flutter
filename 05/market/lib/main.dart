@@ -12,6 +12,7 @@ import 'package:market/home/home_screen.dart';
 import 'package:market/home/product_detail_screen.dart';
 import 'package:market/login/login_screen.dart';
 import 'package:market/login/sign_up_screen.dart';
+import 'package:market/model/product.dart';
 
 List<CameraDescription> cameras = [];
 void main() async {
@@ -52,11 +53,15 @@ class MarketApp extends StatelessWidget {
           ),
           GoRoute(
             path: "product",
-            builder: (context, state) => ProductDetailScreen(),
+            builder: (context, state) {
+              return ProductDetailScreen(product: state.extra as Product);
+            },
           ),
           GoRoute(
             path: "product/add",
-            builder: (context, state) => ProductDetailScreen(),
+            builder: (context, state) {
+              return ProductDetailScreen(product: state.extra as Product);
+            },
           ),
         ],
       ),

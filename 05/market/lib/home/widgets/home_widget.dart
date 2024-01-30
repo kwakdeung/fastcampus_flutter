@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:market/home/product_detail_screen.dart';
 import 'package:market/model/category.dart';
 import 'package:market/model/product.dart';
@@ -177,12 +178,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                               if (snapshot.hasData) {
                                 return GestureDetector(
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProductDetailScreen(),
-                                      ),
-                                    );
+                                    context.go("/product", extra: item);
                                   },
                                   child: Column(
                                     crossAxisAlignment:

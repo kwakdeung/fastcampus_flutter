@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:market/model/product.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  final Product product;
+
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -12,7 +15,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("제품 상세"),
+        title: Text("${widget.product.title}"),
       ),
       body: Column(
         children: [
@@ -24,23 +27,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   Container(
                     height: 320,
                     padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.orange),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      image: DecorationImage(
+                        image: NetworkImage(
+                          widget.product.imgUrl ?? "",
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                     child: Center(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            decoration: BoxDecoration(color: Colors.red),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12),
-                            child: Text(
-                              "할인증",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          switch (widget.product.isSale) {
+                            true => Container(
+                                decoration: BoxDecoration(color: Colors.red),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 12),
+                                child: Text(
+                                  "할인증",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            _ => Container()
+                          }
                         ],
                       ),
                     ),
@@ -54,7 +68,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "플러터 ",
+                              widget.product.title ?? "플러터 ",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 24,
@@ -126,11 +140,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ],
                         ),
                         Text("제품 상세 정보"),
-                        Text("상세상세"),
+                        Text("${widget.product.description}"),
                         Row(
                           children: [
                             Text(
-                              "100000원",
+                              "${widget.product.price ?? "100000"}원",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
