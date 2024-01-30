@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:market/login/provider/login_provider.dart';
 import 'package:market/main.dart';
 import 'package:market/model/product.dart';
 
@@ -83,6 +85,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       int reviewScore = 0;
                                       showDialog(
                                         context: context,
+                                        barrierDismissible: false,
                                         builder: (context) {
                                           TextEditingController revuewTec =
                                               TextEditingController();
@@ -125,10 +128,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                                             .pop(),
                                                     child: Text("취소"),
                                                   ),
-                                                  TextButton(
-                                                    onPressed: () {},
-                                                    child: Text("등록"),
-                                                  ),
+                                                  Consumer(builder:
+                                                      (context, ref, child) {
+                                                    final user = ref.watch(
+                                                        userCredentialProvider);
+                                                    return TextButton(
+                                                      onPressed: () async {
+                                                        await FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "products")
+                                                            .doc(
+                                                                "${widget.product.docId}")
+                                                            .collection(
+                                                                "reviews")
+                                                            .add(
+                                                          {
+                                                            "uid": user?.user
+                                                                    ?.uid ??
+                                                                "",
+                                                            "email": user?.user
+                                                                    ?.email ??
+                                                                "",
+                                                            "review": revuewTec
+                                                                .text
+                                                                .trim(),
+                                                            "timestamp":
+                                                                Timestamp.now(),
+                                                            "score":
+                                                                reviewScore + 1,
+                                                          },
+                                                        );
+                                                        Navigator.of(context)
+                                                            .pop;
+                                                      },
+                                                      child: Text("등록"),
+                                                    );
+                                                  }),
                                                 ],
                                               );
                                             },
@@ -178,9 +214,29 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               Container(
                                 child: Text("제품 상세"),
                               ),
-                              Container(
-                                child: Text("리뷰 "),
-                              ),
+                              StreamBuilder(
+                                  stream: FirebaseFirestore.instance
+                                      .collection("products")
+                                      .doc("${widget.product.docId}")
+                                      .collection("reviews")
+                                      .snapshots(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      final items = snapshot.data?.docs ?? [];
+                                      return ListView.separated(
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Text(
+                                                "${items[index].data()["review"]}"),
+                                          );
+                                        },
+                                        separatorBuilder: (_, __) => Divider(),
+                                        itemCount: items.length,
+                                      );
+                                    }
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }),
                             ],
                           ),
                         ),
