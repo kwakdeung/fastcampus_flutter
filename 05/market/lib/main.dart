@@ -15,6 +15,8 @@ import 'package:market/login/sign_up_screen.dart';
 import 'package:market/model/product.dart';
 
 List<CameraDescription> cameras = [];
+UserCredential? userCredential;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
