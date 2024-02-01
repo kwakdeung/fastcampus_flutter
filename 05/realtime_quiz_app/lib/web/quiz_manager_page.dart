@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +21,7 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
   List<QuizManager> quizItems = [];
 
   // 퀴즈 출제 목록
+  List<Quiz> quizList = [];
 
   // 익명 로그인 정보
   signInAnonymously() {
@@ -73,11 +76,29 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
     });
   }
 
+  streamQuizzes() {
+    database?.ref("quiz").onValue.listen((event) {
+      final data = event.snapshot.children;
+      quizList.clear();
+      for (var element in data) {
+        quizList.add(
+          Quiz.fromJson(
+            jsonDecode(
+              jsonEncode(element.value),
+            ),
+          ),
+        );
+      }
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     signInAnonymously();
+    streamQuizzes();
   }
 
   @override
@@ -146,7 +167,19 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
                       )
                     ],
                   ),
-                  Container(),
+                  ListView.builder(
+                    itemCount: quizList.length,
+                    itemBuilder: (context, index) {
+                      final item = quizList[index];
+                      return ListTile(
+                        onTap: () {
+                          // TODO 퀴즈를 시작하는 것
+                        },
+                        title: Text("code : ${item.code}"),
+                        subtitle: Text("${item.quizDetailRef}"),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
