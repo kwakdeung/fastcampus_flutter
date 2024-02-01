@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:realtime_quiz_app/model/quiz.dart';
+import 'package:realtime_quiz_app/web/quiz_bottom_sheet_widget.dart';
 
 class QuizManagerPage extends StatefulWidget {
   const QuizManagerPage({super.key});
@@ -15,10 +17,20 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
 
   // 퀴즈 출제 목록
 
+  // 익명 로그인 정보
+  signInAnonymously() {
+    FirebaseAuth.instance.signInAnonymously().then((value) {
+      setState(() {
+        uid = value.user?.uid ?? "";
+      });
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    signInAnonymously();
   }
 
   @override
@@ -96,6 +108,13 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           // TODO 문제 출제를 위한 모달을 띄우기
+          final quiz = await showModalBottomSheet(
+            context: context,
+            builder: (context) => QuizBottomSheetWidget(),
+          );
+          setState(() {
+            quizItems.add(quiz);
+          });
         },
         child: Icon(Icons.add),
       ),
