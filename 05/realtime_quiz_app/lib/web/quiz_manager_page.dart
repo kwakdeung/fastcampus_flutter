@@ -93,6 +93,62 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
     });
   }
 
+  startQuiz(Quiz item) async {
+    final ref =
+        await database?.ref("quiz_state/${item.quizDetailRef}/state").get();
+    final currentState = ref?.value as bool;
+    if (!currentState) {
+      final quizDetailRef =
+          await database?.ref("quiz_detail/${item.quizDetailRef}").get();
+
+      final problemCount =
+          quizDetailRef?.child("/problems").children.length ?? 0;
+
+      DateTime nowDatetime = DateTime.now();
+      List<Map> triggerTimes = [];
+      int solveTime = 5;
+      for (var i = 0; i < problemCount; i++) {
+        final startTime = nowDatetime.add(Duration(
+          seconds: 5 + (i * solveTime),
+        ));
+        final endTime = startTime.add(Duration(seconds: 5));
+        triggerTimes.add({
+          "start": startTime.millisecondsSinceEpoch,
+          "end": endTime.millisecondsSinceEpoch,
+        });
+        nowDatetime = endTime;
+      }
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text("퀴즈를 시작할까요? "),
+            title: Text("안내"),
+            actions: [
+              TextButton(
+                  onPressed: () async {
+                    await database
+                        ?.ref("quiz_state/${item.quizDetailRef}")
+                        .update(
+                      {
+                        "state": true,
+                        "current": 0,
+                        "triggers": triggerTimes,
+                      },
+                    );
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text("네"))
+            ],
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -174,6 +230,7 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
                       return ListTile(
                         onTap: () {
                           // TODO 퀴즈를 시작하는 것
+                          startQuiz(item);
                         },
                         title: Text("code : ${item.code}"),
                         subtitle: Text("${item.quizDetailRef}"),
