@@ -52,6 +52,7 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
                     children: [
                       Expanded(
                         child: ListView.builder(
+                          itemCount: quizItems.length,
                           itemBuilder: (context, index) {
                             return ExpansionTile(
                               title:
@@ -85,6 +86,7 @@ class _QuizManagerPageState extends State<QuizManagerPage> {
                       )
                     ],
                   ),
+                  Container(),
                 ],
               ),
             ),
