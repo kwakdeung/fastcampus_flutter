@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:realtime_quiz_app/main.dart';
 
 class PinCodePage extends StatefulWidget {
   const PinCodePage({super.key});
@@ -23,6 +26,28 @@ class _PinCodePageState extends State<PinCodePage> {
     });
   }
 
+  Future<bool> findPinCode(String code) async {
+    final quizRef = database?.ref("quiz");
+    final result = await quizRef?.get();
+
+    codeItems.clear();
+
+    for (var element in result!.children) {
+      final data =
+          jsonDecode(jsonEncode(element.value)) as Map<String, dynamic>;
+
+      DateTime nowDateTime = DateTime.now();
+      DateTime generatedTime = DateTime.parse(data['generateTime']);
+      if (nowDateTime.difference(generatedTime).inDays < 1) {
+        if (data.containsValue(code)) {
+          codeItems.add(data["quizDetailRef"]);
+        }
+      }
+    }
+
+    return codeItems.isEmpty ? false : true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -39,6 +64,7 @@ class _PinCodePageState extends State<PinCodePage> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
                 controller: pinTextEditingController,
@@ -79,6 +105,20 @@ class _PinCodePageState extends State<PinCodePage> {
                       );
                       return;
                     }
+                    final result =
+                        await findPinCode(pinTextEditingController.text.trim());
+                    if (result) {
+                      print("코드가 존재함");
+                      if (context.mounted) {}
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("등록된 핀코드가 없습니다."),
+                          ),
+                        );
+                      }
+                    }
                   }
                 },
                 height: 72,
@@ -90,7 +130,7 @@ class _PinCodePageState extends State<PinCodePage> {
                     color: Colors.white,
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
