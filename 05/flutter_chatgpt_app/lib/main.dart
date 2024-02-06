@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatgpt_app/model/open_ai_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:rxdart/rxdart.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,13 +36,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   TextEditingController messageTextController = TextEditingController();
   final List<Messages> _historyList = List.empty(growable: true);
   // String apiKey = "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";
-  String apiKey = "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";
+  String apiKey = "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";
   String streamText = "";
   static const String _kStrings = "Flutter ChatGPT";
   String get _currentString => _kStrings;
   ScrollController scrollController = ScrollController();
   late Animation<int> _characterCount;
   late AnimationController animationController;
+
+  void _scrollDown() {
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 350),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
 
   setupAnimations() {
     animationController = AnimationController(
@@ -93,7 +102,73 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       body: jsonEncode(openAiModel.toJson()),
     );
     print(resp.body);
-    if (resp.statusCode == 200) {}
+    if (resp.statusCode == 200) {
+      final jsonData = jsonDecode(utf8.decode(resp.bodyBytes)) as Map;
+      String role = jsonData["choices"][0]["message"]["role"];
+      String content = jsonData["choices"][0]["message"]["content"];
+      _historyList.last =
+          _historyList.last.copyWith(role: role, content: content);
+    }
+    setState(() {
+      _scrollDown();
+    });
+  }
+
+  Stream requestChatStream(String text) async* {
+    ChatCompletionModel openAiModel = ChatCompletionModel(
+        model: "gpt-3.5-turbo",
+        messages: [
+          Messages(
+            role: "system",
+            content: "You are a helpful assistant.",
+          ),
+        ],
+        stream: true);
+    final url = Uri.https("api.openai.com", "/v1/chat/completions");
+    final request = http.Request("POST", url)
+      ..headers.addAll(
+        {
+          "Authorization": "Bearer ${apiKey}",
+          "Content-Type": "application/json; charset=UTF-8",
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate, br",
+        },
+      );
+    request.body = jsonEncode(openAiModel.toJson());
+    final resp = await http.Client().send(request);
+    final byteStream = resp.stream.asyncExpand(
+      (event) => Rx.timer(
+        event,
+        const Duration(milliseconds: 50),
+      ),
+    );
+    final statusCode = resp.statusCode;
+    var respText = "";
+
+    await for (final byte in byteStream) {
+      var decode = utf8.decode(byte, allowMalformed: false);
+      final strings = decode.split("data: ");
+      for (final string in strings) {
+        final trimmedString = string.trim();
+        if (trimmedString.isNotEmpty && !trimmedString.endsWith("[DONE]")) {
+          final map = jsonDecode(trimmedString) as Map;
+          final choices = map["choices"] as List;
+          final delta = choices[0]["delta"] as Map;
+          if (delta["content"] != null) {
+            final content = delta["content"] as String;
+            respText += content;
+            setState(() {
+              streamText = respText;
+            });
+            yield content;
+          }
+        }
+      }
+    }
+
+    if (respText.isNotEmpty) {
+      setState(() {});
+    }
   }
 
   @override
@@ -109,6 +184,27 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     scrollController.dispose();
 
     super.dispose();
+  }
+
+  Future clearChat() async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("새로운 대화의 시작"),
+        content: Text("신규 대화를 생성하시겠어요?"),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  messageTextController.clear();
+                  _historyList.clear();
+                });
+              },
+              child: Text("네"))
+        ],
+      ),
+    );
   }
 
   @override
@@ -137,6 +233,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           ),
                         ),
                         PopupMenuItem(
+                          onTap: () {
+                            clearChat();
+                          },
                           child: ListTile(
                             title: const Text("새로운 채팅"),
                           ),
@@ -149,75 +248,79 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(
-                    child: AnimatedBuilder(
-                      animation: _characterCount,
-                      builder: (BuildContext context, Widget? child) {
-                        String text =
-                            _currentString.substring(0, _characterCount.value);
-                        return Row(
-                          children: [
-                            Text(
-                              "${text}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 8,
-                              backgroundColor: Colors.orange[200],
-                            )
-                          ],
-                        );
-                      },
-                      // color: Colors.blue,
-                      // child: Center(
-                      //   child: Text(_kStrings),
-                      // ),
-                      // child: ListView.builder(
-                      //   itemCount: 10,
-                      //   itemBuilder: (context, index) {
-                      //     if (index % 2 == 0) {
-                      //       return Padding(
-                      //         padding: const EdgeInsets.symmetric(vertical: 16),
-                      //         child: Row(
-                      //           children: [
-                      //             CircleAvatar(),
-                      //             SizedBox(width: 8),
-                      //             Expanded(
-                      //               child: Column(
-                      //                 crossAxisAlignment: CrossAxisAlignment.start,
-                      //                 children: [
-                      //                   Text("User"),
-                      //                   Text("message"),
-                      //                 ],
-                      //               ),
-                      //             )
-                      //           ],
-                      //         ),
-                      //       );
-                      //     }
-                      //     return Row(
-                      //       children: [
-                      //         CircleAvatar(
-                      //           backgroundColor: Colors.teal,
-                      //         ),
-                      //         SizedBox(width: 8),
-                      //         Expanded(
-                      //             child: Column(
-                      //           crossAxisAlignment: CrossAxisAlignment.start,
-                      //           children: [
-                      //             Text("ChatGPT"),
-                      //             Text("OpenAI OpenAI OpenAI OpenAI"),
-                      //           ],
-                      //         ))
-                      //       ],
-                      //     );
-                      //   },
-                      // ),
-                    ),
-                  ),
+                  child: _historyList.isEmpty
+                      ? Center(
+                          child: AnimatedBuilder(
+                            animation: _characterCount,
+                            builder: (BuildContext context, Widget? child) {
+                              String text = _currentString.substring(
+                                  0, _characterCount.value);
+                              return Row(
+                                children: [
+                                  Text(
+                                    "${text}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                  CircleAvatar(
+                                    radius: 8,
+                                    backgroundColor: Colors.orange[200],
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () => FocusScope.of(context).unfocus(),
+                          child: ListView.builder(
+                            controller: scrollController,
+                            itemCount: _historyList.length,
+                            itemBuilder: (context, index) {
+                              if (_historyList[index].role == "user") {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  child: Row(
+                                    children: [
+                                      const CircleAvatar(),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text("User"),
+                                            Text(_historyList[index].content),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              }
+                              return Row(
+                                children: [
+                                  const CircleAvatar(
+                                    backgroundColor: Colors.teal,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                      child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text("ChatGPT"),
+                                      Text(_historyList[index].content),
+                                    ],
+                                  ))
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                 ),
               ),
               Dismissible(
@@ -237,6 +340,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 confirmDismiss: (d) async {
                   if (d == DismissDirection.startToEnd) {
                     // logic
+                    if (_historyList.isEmpty) return;
+                    clearChat();
                   }
                 },
                 child: Row(
@@ -262,8 +367,28 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           if (messageTextController.text.isEmpty) {
                             return;
                           }
+                          setState(() {
+                            _historyList.add(
+                              Messages(
+                                  role: "user",
+                                  content: messageTextController.text.trim()),
+                            );
+                            _historyList
+                                .add(Messages(role: "assistant", content: ""));
+                          });
                           try {
-                            requestChat(messageTextController.text.trim());
+                            var text = "";
+                            final stream = requestChatStream(
+                                messageTextController.text.trim());
+                            await for (final textChunk in stream) {
+                              text += textChunk;
+                              setState(() {
+                                _historyList.last =
+                                    _historyList.last.copyWith(content: text);
+                                _scrollDown();
+                              });
+                            }
+                            // await requestChat(messageTextController.text.trim());
                             messageTextController.clear();
                             streamText = "";
                           } catch (e) {
