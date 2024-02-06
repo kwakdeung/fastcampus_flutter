@@ -27,11 +27,48 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   TextEditingController messageTextController = TextEditingController();
   static const String _kStrings = "Flutter ChatGPT";
   String get _currentString => _kStrings;
   ScrollController scrollController = ScrollController();
+  late Animation<int> _characterCount;
+  late AnimationController animationController;
+
+  setupAnimations() {
+    animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _characterCount = StepTween(begin: 0, end: _currentString.length).animate(
+      CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeIn,
+      ),
+    );
+    animationController.addListener(() {
+      setState(() {});
+    });
+    animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(const Duration(seconds: 1)).then((value) {
+          animationController.reverse();
+        });
+      } else if (status == AnimationStatus.dismissed) {
+        Future.delayed(const Duration(seconds: 1)).then((value) {
+          animationController.forward();
+        });
+      }
+    });
+    animationController.forward();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setupAnimations();
+  }
 
   @override
   void dispose() {
@@ -77,51 +114,76 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               Expanded(
-                child: Container(
-                  // color: Colors.blue,
-                  // child: Center(
-                  //   child: Text(_kStrings),
-                  // ),
-                  child: ListView.builder(
-                    itemCount: 10,
-                    itemBuilder: (context, index) {
-                      if (index % 2 == 0) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Row(
-                            children: [
-                              CircleAvatar(),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("User"),
-                                    Text("message"),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: AnimatedBuilder(
+                      animation: _characterCount,
+                      builder: (BuildContext context, Widget? child) {
+                        String text =
+                            _currentString.substring(0, _characterCount.value);
+                        return Row(
+                          children: [
+                            Text(
+                              "${text}",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                              ),
+                            ),
+                            CircleAvatar(
+                              radius: 8,
+                              backgroundColor: Colors.orange[200],
+                            )
+                          ],
                         );
-                      }
-                      return Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.teal,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("ChatGPT"),
-                              Text("OpenAI OpenAI OpenAI OpenAI"),
-                            ],
-                          ))
-                        ],
-                      );
-                    },
+                      },
+                      // color: Colors.blue,
+                      // child: Center(
+                      //   child: Text(_kStrings),
+                      // ),
+                      // child: ListView.builder(
+                      //   itemCount: 10,
+                      //   itemBuilder: (context, index) {
+                      //     if (index % 2 == 0) {
+                      //       return Padding(
+                      //         padding: const EdgeInsets.symmetric(vertical: 16),
+                      //         child: Row(
+                      //           children: [
+                      //             CircleAvatar(),
+                      //             SizedBox(width: 8),
+                      //             Expanded(
+                      //               child: Column(
+                      //                 crossAxisAlignment: CrossAxisAlignment.start,
+                      //                 children: [
+                      //                   Text("User"),
+                      //                   Text("message"),
+                      //                 ],
+                      //               ),
+                      //             )
+                      //           ],
+                      //         ),
+                      //       );
+                      //     }
+                      //     return Row(
+                      //       children: [
+                      //         CircleAvatar(
+                      //           backgroundColor: Colors.teal,
+                      //         ),
+                      //         SizedBox(width: 8),
+                      //         Expanded(
+                      //             child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text("ChatGPT"),
+                      //             Text("OpenAI OpenAI OpenAI OpenAI"),
+                      //           ],
+                      //         ))
+                      //       ],
+                      //     );
+                      //   },
+                      // ),
+                    ),
                   ),
                 ),
               ),
