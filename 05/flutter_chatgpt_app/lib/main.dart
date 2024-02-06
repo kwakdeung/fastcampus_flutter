@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_chatgpt_app/model/open_ai_model.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +33,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   TextEditingController messageTextController = TextEditingController();
+  final List<Messages> _historyList = List.empty(growable: true);
+  // String apiKey = "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";
+  String apiKey = "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";
+  String streamText = "";
   static const String _kStrings = "Flutter ChatGPT";
   String get _currentString => _kStrings;
   ScrollController scrollController = ScrollController();
@@ -61,6 +69,31 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       }
     });
     animationController.forward();
+  }
+
+  Future requestChat(String text) async {
+    ChatCompletionModel openAiModel = ChatCompletionModel(
+      model: "gpt-3.5-turbo",
+      messages: [
+        Messages(
+          role: "system",
+          content: "You are a helpful assistant",
+        ),
+        ..._historyList,
+      ],
+      stream: false,
+    );
+    final url = Uri.https("api.openai.com", "/v1/chat/completions");
+    final resp = await http.post(
+      url,
+      headers: {
+        "Authorization": "Bearer $apiKey",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode(openAiModel.toJson()),
+    );
+    print(resp.body);
+    if (resp.statusCode == 200) {}
   }
 
   @override
@@ -225,7 +258,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       ),
                     ),
                     IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          if (messageTextController.text.isEmpty) {
+                            return;
+                          }
+                          try {
+                            requestChat(messageTextController.text.trim());
+                            messageTextController.clear();
+                            streamText = "";
+                          } catch (e) {
+                            print(e.toString());
+                          }
+                        },
                         iconSize: 42,
                         icon: Icon(Icons.arrow_circle_up))
                   ],
