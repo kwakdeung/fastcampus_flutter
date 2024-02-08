@@ -58,19 +58,34 @@ class _FaceDetectorAppState extends State<FaceDetectorApp> {
 
   @override
   void dispose() {
+    imageLabeler.close();
     super.dispose();
   }
 
   Future<String> getLocalPath(String path) async {
-    return "";
+    return "${(await getApplicationSupportDirectory()).path}/$path";
   }
 
   Future<String> getAssetPath(String asset) async {
-    return "";
+    final path = await getLocalPath(asset);
+    await Directory(dirname(path)).create(recursive: true);
+    final file = File(path);
+    if (!await file.exists()) {
+      final byteData = await rootBundle.load(asset);
+      await file.writeAsBytes(byteData.buffer.asUint8List(
+        byteData.offsetInBytes,
+        byteData.lengthInBytes,
+      ));
+    }
+    return file.path;
   }
 
   void _initializeLabeler() async {
-    imageLabeler = ImageLabeler(options: ImageLabelerOptions());
+    // imageLabeler = ImageLabeler(options: ImageLabelerOptions());
+    const path = "assets/lite-model_models_mushroom-identification_v1.tflite";
+    final modelPath = await getAssetPath(path);
+    final options = LocalLabelerOptions(modelPath: modelPath);
+    imageLabeler = ImageLabeler(options: options);
   }
 
   void _initializeDetector() async {}
@@ -87,41 +102,41 @@ class _FaceDetectorAppState extends State<FaceDetectorApp> {
           ),
         ],
       ),
-      body: CameraView(customPaint: _customPaint, onImage: _processImage),
-      // body: ListView(
-      //   shrinkWrap: true,
-      //   children: [
-      //     _image != null
-      //         ? SizedBox(
-      //             height: 400,
-      //             width: 400,
-      //             child: Image.file(_image!),
-      //           )
-      //         : Center(
-      //             child: Container(
-      //               height: 200,
-      //               width: 200,
-      //               margin: EdgeInsets.all(32),
-      //               decoration: BoxDecoration(
-      //                 border: Border.all(),
-      //               ),
-      //               child: const Center(
-      //                 child: Text("이미지를 불러와주세요"),
-      //               ),
-      //             ),
-      //           ),
-      //     Padding(
-      //       padding: const EdgeInsets.all(8.0),
-      //       child: ElevatedButton(
-      //         onPressed: () {
-      //           _getImage(ImageSource.gallery);
-      //         },
-      //         child: const Text("갤러리 이미지 가져오기"),
-      //       ),
-      //     ),
-      //     if (_image != null) Text(_text ?? ""),
-      //   ],
-      // ),
+      // body: CameraView(customPaint: _customPaint, onImage: _processImage),
+      body: ListView(
+        shrinkWrap: true,
+        children: [
+          _image != null
+              ? SizedBox(
+                  height: 400,
+                  width: 400,
+                  child: Image.file(_image!),
+                )
+              : Center(
+                  child: Container(
+                    height: 200,
+                    width: 200,
+                    margin: EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                    ),
+                    child: const Center(
+                      child: Text("이미지를 불러와주세요"),
+                    ),
+                  ),
+                ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _getImage(ImageSource.gallery);
+              },
+              child: const Text("갤러리 이미지 가져오기"),
+            ),
+          ),
+          if (_image != null) Text(_text ?? ""),
+        ],
+      ),
     );
   }
 
