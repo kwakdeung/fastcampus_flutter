@@ -5,6 +5,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mlkit_text_detector_starter/camera_view_page.dart';
+import 'package:mlkit_text_detector_starter/text_detector_painter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,7 +65,16 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Column(
+      body:
+          // buildGalleryView(),
+          CameraView(
+        customPaint: _customPaint,
+        onImage: _processImage,
+      ),
+    );
+  }
+
+  Widget buildGalleryView() => Column(
         children: [
           DropdownButton(
             items: TextRecognitionScript.values
@@ -114,16 +125,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
-      ),
-      // body: CameraView(
-      //   customPaint: _customPaint,
-      //   onImage: _processImage,
-      // ),
-    );
-  }
-
-  Widget buildGalleryView() => Column(
-        children: [],
       );
 
   Future _getImage(ImageSource source) async {
@@ -154,6 +155,16 @@ class _MyHomePageState extends State<MyHomePage> {
     final recognizedText = await textRecognizer.processImage(inputImage);
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
+      // print(recognizedText.text);
+      final painter = TextRecognizerPainter(
+        recognizedText,
+        inputImage.metadata!.size,
+        inputImage.metadata!.rotation,
+        _cameraLensDirection,
+      );
+      _customPaint = CustomPaint(
+        painter: painter,
+      );
     } else {
       // 갤러리에서 가져온 값 처리
       _text = "recognized Text: ${recognizedText.text} \n\n";
