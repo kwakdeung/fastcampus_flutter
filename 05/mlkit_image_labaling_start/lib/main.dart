@@ -96,8 +96,18 @@ class _FaceDetectorAppState extends State<FaceDetectorApp> {
     objectDetector?.close();
     objectDetector = null;
 
-    final options = ObjectDetectorOptions(
+    // final options = ObjectDetectorOptions(
+    //   mode: DetectionMode.stream,
+    //   classifyObjects: true,
+    //   multipleObjects: true,
+    // );
+    // objectDetector = ObjectDetector(options: options);
+
+    final path = 'assets/object_labeler.tflite';
+    final modelPath = await getAssetPath(path);
+    final options = LocalObjectDetectorOptions(
       mode: DetectionMode.stream,
+      modelPath: modelPath,
       classifyObjects: true,
       multipleObjects: true,
     );
