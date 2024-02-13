@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
+import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,9 +29,22 @@ class DigitalInkApp extends StatefulWidget {
 }
 
 class _DigitalInkAppState extends State<DigitalInkApp> {
+  final DigitalInkRecognizerModelManager _modelManager =
+      DigitalInkRecognizerModelManager();
   var _language = "en";
+  var _digitalInkRecognizer = DigitalInkRecognizer(languageCode: 'en');
+
   final _languages = ['en', 'ko', 'ja', 'zh-Hani'];
   String _recognizedText = '';
+
+  final Ink _ink = Ink();
+  List<StrokePoint> _points = [];
+
+  @override
+  void dispose() {
+    _digitalInkRecognizer.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +72,25 @@ class _DigitalInkAppState extends State<DigitalInkApp> {
                       if (v != null) {
                         setState(() {
                           _language = v;
+                          _digitalInkRecognizer.close();
+                          _digitalInkRecognizer =
+                              DigitalInkRecognizer(languageCode: _language);
                         });
                       }
                     }),
                 SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final value =
+                        await _modelManager.isModelDownloaded(_language);
+                    final result = value ? '다운로드 되어있음.' : '다운로드된 모델 없음.';
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result),
+                      ),
+                    );
+                  },
                   child: Text("모델 체크"),
                 ),
               ],
@@ -71,12 +98,30 @@ class _DigitalInkAppState extends State<DigitalInkApp> {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final value = await _modelManager.downloadModel(_language);
+                    final result = value ? '다운로드 성공' : '다운로드 실패';
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result),
+                      ),
+                    );
+                  },
                   child: Text("모델 다운로드"),
                 ),
                 SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final value = await _modelManager.deleteModel(_language);
+                    final result = value ? '성공' : '실패';
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result),
+                      ),
+                    );
+                  },
                   child: Text("모델 삭제"),
                 ),
               ],
@@ -95,6 +140,33 @@ class _DigitalInkAppState extends State<DigitalInkApp> {
                 decoration: BoxDecoration(
                   border: Border.all(),
                 ),
+                child: GestureDetector(
+                  onPanStart: (details) {
+                    _ink.strokes.add(Stroke());
+                  },
+                  onPanEnd: (details) {
+                    _points.clear();
+                    setState(() {});
+                  },
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _points = List.from(_points)
+                        ..add(
+                          StrokePoint(
+                              x: details.localPosition.dx,
+                              y: details.localPosition.dy,
+                              t: DateTime.now().millisecondsSinceEpoch),
+                        );
+                      if (_ink.strokes.isNotEmpty) {
+                        _ink.strokes.last.points = _points.toList();
+                      }
+                    });
+                  },
+                  child: CustomPaint(
+                    size: Size.infinite,
+                    painter: Signature(ink: _ink),
+                  ),
+                ),
               ),
             ),
             if (_recognizedText.isNotEmpty)
@@ -108,7 +180,20 @@ class _DigitalInkAppState extends State<DigitalInkApp> {
                 ),
               ),
             GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                try {
+                  final candidates =
+                      await _digitalInkRecognizer.recognize(_ink);
+                  _recognizedText = "";
+                  for (final candidate in candidates) {
+                    _recognizedText += "\n${candidate.text}";
+                  }
+                  setState(() {});
+                } catch (e) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("${e.toString()}")));
+                }
+              },
               child: Container(
                 height: 64,
                 margin: EdgeInsets.symmetric(vertical: 16),
@@ -127,9 +212,44 @@ class _DigitalInkAppState extends State<DigitalInkApp> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          setState(() {
+            _ink.strokes.clear();
+            _points.clear();
+            _recognizedText = '';
+          });
+        },
         child: Icon(Icons.clear),
       ),
     );
+  }
+}
+
+class Signature extends CustomPainter {
+  Ink ink;
+  Signature({required this.ink});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 6.0;
+    for (final stroke in ink.strokes) {
+      for (var i = 0; i < stroke.points.length - 1; i++) {
+        final p1 = stroke.points[i];
+        final p2 = stroke.points[i + 1];
+        canvas.drawLine(
+          Offset(p1.x.toDouble(), p1.y.toDouble()),
+          Offset(p2.x.toDouble(), p2.y.toDouble()),
+          paint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }
