@@ -10,15 +10,19 @@ import '../../core/constant/app_icons.dart';
 import '../pages/home/home_page.dart';
 import 'component/top_app_bar.dart';
 import 'cubit/bottom_nav_cubit.dart';
+import 'cubit/mall_type_cubit.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => BottomNavCubit(),
-      child: const MainScreenView(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => BottomNavCubit()),
+        BlocProvider(create: (_) => MallTypeCubit()),
+      ],
+      child: MainScreenView(),
     );
   }
 }
