@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:e_commerce_app/core/constant/app_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -24,10 +25,9 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // TODO 하드코딩 된 값 변경할 것
-      backgroundColor: Color(0xff5F0080),
+      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
-        child: SvgPicture.asset('assets/svg/main_logo.svg'),
+        child: SvgPicture.asset(AppIcons.mainLogo),
       ),
     );
   }
