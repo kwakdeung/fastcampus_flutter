@@ -1,10 +1,11 @@
 import 'package:e_commerce_app/core/constant/app_icons.dart';
-import 'package:e_commerce_app/presentation/main/component/default_app_bar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
-import '../cubit/bottom_nav_cubit.dart';
+import '../../cubit/bottom_nav_cubit.dart';
+import 'default_app_bar.dart';
 import 'home_app_bar.dart';
 
 class TopAppBar extends StatelessWidget implements PreferredSizeWidget {
