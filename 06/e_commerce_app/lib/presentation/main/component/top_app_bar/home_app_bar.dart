@@ -46,7 +46,8 @@ class HomeAppBar extends StatelessWidget {
                       MallType.values.length,
                       (index) => Tab(text: MallType.values[index].toName),
                     ),
-                    isScrollable: true,
+                    isScrollable: false,
+                    tabAlignment: TabAlignment.center,
                     indicator: BoxDecoration(
                       color: state.theme.indicatorColor,
                       borderRadius: BorderRadius.all(
