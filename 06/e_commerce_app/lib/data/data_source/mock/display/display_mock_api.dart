@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import '../../../dto/common/response_wrapper/response_wrapper.dart';
 import '../../../dto/display/menu/menu.dto.dart';
-import '../../remote/display.api.dart';
+import '../../remote/display/display.api.dart';
 import 'display_mock_data.dart';
 
 class DisplayMockApi implements DisplayApi {
