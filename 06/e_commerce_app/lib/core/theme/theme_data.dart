@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'constant/app_colors.dart';
-import 'custom/custom_font_weight.dart';
-import 'custom/custom_theme.dart';
+import '../constant/app_colors.dart';
+import '../custom/custom_font_weight.dart';
+import '../custom/custom_theme.dart';
 
 class CustomThemeData {
   static ThemeData get themeData => ThemeData(
