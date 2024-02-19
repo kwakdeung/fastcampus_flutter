@@ -5,14 +5,20 @@ import 'package:go_router/go_router.dart';
 import 'core/theme_data.dart';
 import 'data/data_source/mock/display/display_mock_api.dart';
 import 'data/repository_impl/display.repository_impl.dart';
+import 'domain/usecase/display/display.usecase.dart';
+import 'domain/usecase/display/menu/get_menus.usecase.dart';
 import 'presentation/main/cubit/mall_type_cubit.dart';
 import 'presentation/pages/home/home_page.dart';
 import 'presentation/pages/splash/splash_page.dart';
+import 'service_locator.dart';
 
 void main() async {
-  final data = await DisplayRepositoryImpl(DisplayMockApi())
-      .getMenusByMallType(mallType: MallType.market);
-  print(data);
+  setLocator();
+  // final menus = await DisplayUsecase(DisplayRepositoryImpl(DisplayMockApi()))
+  //     .excute(usecase: GetMenusUsecase(mallType: MallType.market));
+  final menus = await locator<DisplayUsecase>()
+      .excute(usecase: GetMenusUsecase(mallType: MallType.market));
+  print(menus);
   runApp(const MainApp());
 }
 
