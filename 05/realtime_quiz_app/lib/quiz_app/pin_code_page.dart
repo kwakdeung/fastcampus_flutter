@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:realtime_quiz_app/main.dart';
+import 'package:realtime_quiz_app/quiz_app/quiz_app.dart';
 
 class PinCodePage extends StatefulWidget {
   const PinCodePage({super.key});
@@ -20,7 +21,7 @@ class _PinCodePageState extends State<PinCodePage> {
 
   final codeItems = [];
 
-  signInAnonymously() async {
+  signInAnonymously() {
     auth.signInAnonymously().then((value) {
       uid = value.user?.uid;
     });
@@ -29,6 +30,7 @@ class _PinCodePageState extends State<PinCodePage> {
   Future<bool> findPinCode(String code) async {
     final quizRef = database?.ref("quiz");
     final result = await quizRef?.get();
+    print(quizRef);
 
     codeItems.clear();
 
@@ -58,7 +60,7 @@ class _PinCodePageState extends State<PinCodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("입장 코드 입력"),
+        title: const Text("입장 코드 입력"),
       ),
       body: SafeArea(
         child: Padding(
@@ -74,7 +76,9 @@ class _PinCodePageState extends State<PinCodePage> {
                   labelText: "Pin Code",
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(
+                height: 24,
+              ),
               TextField(
                 controller: nicknameTextEditingController,
                 decoration: const InputDecoration(
@@ -83,8 +87,12 @@ class _PinCodePageState extends State<PinCodePage> {
                   labelText: "플레이어 명치",
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(
+                height: 24,
+              ),
               MaterialButton(
+                height: 72,
+                color: Colors.indigo,
                 onPressed: () async {
                   if (pinTextEditingController.text.isEmpty) {
                     if (context.mounted) {
@@ -93,8 +101,8 @@ class _PinCodePageState extends State<PinCodePage> {
                           content: Text("핀코드를 입력해주세요."),
                         ),
                       );
-                      return;
                     }
+                    return;
                   }
                   if (nicknameTextEditingController.text.isEmpty) {
                     if (context.mounted) {
@@ -103,27 +111,38 @@ class _PinCodePageState extends State<PinCodePage> {
                           content: Text("별명을 입력해주세요."),
                         ),
                       );
-                      return;
                     }
-                    final result =
-                        await findPinCode(pinTextEditingController.text.trim());
-                    if (result) {
-                      print("코드가 존재함");
-                      if (context.mounted) {}
-                    } else {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("등록된 핀코드가 없습니다."),
+                    return;
+                  }
+
+                  String pinCode = pinTextEditingController.text.trim();
+                  final result = await findPinCode(pinCode);
+                  print("pinCode: ${pinCode}");
+                  if (result) {
+                    print("코드가 존재함");
+                    if (context.mounted) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => QuizPage(
+                            quizRef: codeItems.first,
+                            code: pinCode,
+                            name: nicknameTextEditingController.text.trim(),
+                            uid: uid ?? "Unknown User",
                           ),
-                        );
-                      }
+                        ),
+                      );
+                    }
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("등록된 핀코드가 없습니다."),
+                        ),
+                      );
                     }
                   }
                 },
-                height: 72,
-                color: Colors.indigo,
-                child: Text(
+                child: const Text(
                   "입장하기",
                   style: TextStyle(
                     fontSize: 24,

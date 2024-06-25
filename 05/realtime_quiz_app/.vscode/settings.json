@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/Applications/it/flutter_practice/05/realtime_quiz_app/linux"
+    "cmake.sourceDirectory": "/Applications/it/flutter_practice/05/realtime_quiz_app/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
