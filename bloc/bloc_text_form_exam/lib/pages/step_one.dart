@@ -1,38 +1,12 @@
+import 'package:bloc_text_form_exam/bloc/email_bloc.dart';
 import 'package:bloc_text_form_exam/pages/step_two.dart';
+import 'package:bloc_text_form_exam/regx.dart';
 import 'package:bloc_text_form_exam/widgets/flat_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class StepOne extends StatefulWidget {
+class StepOne extends StatelessWidget {
   const StepOne({super.key});
-
-  @override
-  State<StepOne> createState() => _StepOneState();
-}
-
-class _StepOneState extends State<StepOne> {
-  final TextEditingController _emailController = TextEditingController();
-  bool _isButtonActive = false;
-
-  void _checkEmailValidity() {
-    final email = _emailController.text;
-    final isEmailValid =
-        RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+').hasMatch(email);
-    setState(() {
-      _isButtonActive = isEmailValid;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _emailController.addListener(_checkEmailValidity);
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -44,27 +18,39 @@ class _StepOneState extends State<StepOne> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: "이메일",
-                  hintText: "이메일을 입력하세요.",
-                  border: OutlineInputBorder(),
-                ),
+              BlocBuilder<EmailBloc, EmailState>(
+                builder: (context, state) {
+                  return TextField(
+                    onChanged: (email) =>
+                        context.read<EmailBloc>().add(EmailChanged(email)),
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: "이메일",
+                      hintText: "이메일을 입력하세요.",
+                      border: const OutlineInputBorder(),
+                      errorText: !state.isValid ? "유효하지 않은 이메일입니다." : null,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 20.0),
-              FlatButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StepTwo(),
-                      ),
+              BlocBuilder<EmailBloc, EmailState>(
+                  buildWhen: (previous, current) =>
+                      previous.isValid != current.isValid,
+                  builder: (context, state) {
+                    return FlatButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StepTwo(),
+                          ),
+                        );
+                      },
+                      text: "Next",
+                      isActive: state.isValid,
                     );
-                  },
-                  text: "Next",
-                  isActive: _isButtonActive)
+                  })
             ],
           ),
         ),
