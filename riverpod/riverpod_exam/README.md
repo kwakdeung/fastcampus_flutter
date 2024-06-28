@@ -5,4 +5,8 @@
 - StateNotifierProvider
 - FutureProvider
 
+2.  Riverpod 프로바이더(2)
+
+- StreamProvider
+
 # riverpod_exam
