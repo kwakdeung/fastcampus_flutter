@@ -10,5 +10,6 @@
 - StreamProvider
 - ChangeNotifierProvider
 - NotifierProvider
+- AsyncNotifierProvider
 
 # riverpod_exam
