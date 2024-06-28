@@ -3,5 +3,6 @@
 - Provider
 - StateProvider
 - StateNotifierProvider
+- FutureProvider
 
 # riverpod_exam
