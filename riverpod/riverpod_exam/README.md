@@ -8,5 +8,6 @@
 2.  Riverpod 프로바이더(2)
 
 - StreamProvider
+- ChangeNotifierProvider
 
 # riverpod_exam
