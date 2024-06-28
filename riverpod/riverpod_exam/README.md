@@ -9,5 +9,6 @@
 
 - StreamProvider
 - ChangeNotifierProvider
+- NotifierProvider
 
 # riverpod_exam
